@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.1.5 - 2026-08-01
+
+### Changed
+
+- Replace project UI branding and repository links with `HunterWangwei`.
+- Display the current version directly on Settings > Check for updates.
+- Check updates against `HunterWangwei/wechat-server` releases.
+
 ## v0.1.4 - 2026-08-01
 
 ### Fixed

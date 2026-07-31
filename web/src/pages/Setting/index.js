@@ -6,6 +6,9 @@ import { API, copy, isRoot, showError, showSuccess } from '../../helpers';
 import { marked } from 'marked';
 import WeChatSetting from '../../components/WeChatSetting';
 
+const repositoryUrl = 'https://github.com/HunterWangwei/wechat-server';
+const currentVersion = process.env.REACT_APP_VERSION || '开发版本';
+
 const Setting = () => {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [updateData, setUpdateData] = useState({
@@ -25,16 +28,15 @@ const Setting = () => {
   };
 
   const openGitHubRelease = () => {
-    window.location =
-      'https://github.com/songquanpeng/wechat-server/releases/latest';
+    window.location = `${repositoryUrl}/releases/latest`;
   };
 
   const checkUpdate = async () => {
     const res = await API.get(
-      'https://api.github.com/repos/songquanpeng/wechat-server/releases/latest'
+      'https://api.github.com/repos/HunterWangwei/wechat-server/releases/latest'
     );
     const { tag_name, body } = res.data;
-    if (tag_name === process.env.REACT_APP_VERSION) {
+    if (tag_name === currentVersion) {
       showSuccess(`已是最新版本：${tag_name}`);
     } else {
       setUpdateData({
@@ -80,6 +82,9 @@ const Setting = () => {
       menuItem: '其他设置',
       render: () => (
         <Tab.Pane attached={false}>
+          <div style={{ marginBottom: '1em' }}>
+            当前版本：<strong>{currentVersion}</strong>
+          </div>
           <Button onClick={checkUpdate}>检查更新</Button>
           <Modal
             onClose={() => setShowUpdateModal(false)}

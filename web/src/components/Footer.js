@@ -16,16 +16,21 @@ const Footer = () => {
         {footerHTML === '' ? (
           <div className="custom-footer">
             <a
-              href="https://github.com/songquanpeng/wechat-server"
+              href="https://github.com/HunterWangwei/wechat-server"
               target="_blank"
+              rel="noreferrer"
             >
               微信服务器 {process.env.REACT_APP_VERSION}{' '}
             </a>
             由{' '}
-            <a href="https://github.com/songquanpeng" target="_blank">
-              JustSong
+            <a
+              href="https://github.com/HunterWangwei"
+              target="_blank"
+              rel="noreferrer"
+            >
+              HunterWangwei
             </a>{' '}
-            构建，源代码遵循{' '}
+            维护，源代码遵循{' '}
             <a href="https://opensource.org/licenses/mit-license.php">
               MIT 协议
             </a>

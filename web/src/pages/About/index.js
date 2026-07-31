@@ -6,8 +6,8 @@ const About = () => (
     <Segment>
       <Header as="h3">关于</Header>
       GitHub:{' '}
-      <a href="https://github.com/songquanpeng/wechat-server">
-        https://github.com/songquanpeng/wechat-server
+      <a href="https://github.com/HunterWangwei/wechat-server">
+        https://github.com/HunterWangwei/wechat-server
       </a>
     </Segment>
   </>
