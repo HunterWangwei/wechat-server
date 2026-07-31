@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.1.3 - 2026-08-01
+
+### Fixed
+
+- Fix frontend production builds by disabling the incompatible Create React App ESLint build plugin in release environments.
+- Upgrade release build environments to Node.js 20 and current GitHub Actions versions.
+
 ## v0.1.2 - 2026-08-01
 
 ### Changed

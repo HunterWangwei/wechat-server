@@ -1,6 +1,7 @@
-FROM node:16 as builder
+FROM node:20 AS builder
 
 WORKDIR /build
+ENV DISABLE_ESLINT_PLUGIN=true
 COPY ./web .
 COPY ./VERSION .
 RUN npm install
