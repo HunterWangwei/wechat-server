@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.4 - 2026-08-01
+
+### Fixed
+
+- Grant release workflows permission to create and upload GitHub Release assets.
+
 ## v0.1.3 - 2026-08-01
 
 ### Fixed
