@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.1.2 - 2026-08-01
+
+### Changed
+
+- Publish container images only to GitHub Container Registry: `ghcr.io/hunterwangwei/wechat-server`.
+- Upgrade GitHub Actions used by the Docker publishing workflow.
+
 ## v0.1.1 - 2026-08-01
 
 ### Added
