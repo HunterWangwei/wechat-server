@@ -1,70 +1,90 @@
-# 微信公众号服务器
-> 用以微信公众号的后端，提供登录验证功能
+# 微信公众号服务端
+
+用于微信公众号登录验证、Access Token 管理和自定义菜单的 Go 服务端，内置 React 管理界面。
+
+当前版本：`v0.1.1`
 
 ## 功能
-+ [x] Access Token 自动刷新 & 提供外部访问接口
-+ [x] 自定义菜单（需要你的公众号有这个权限）
-+ [x] 登录验证
-+ [ ] 自定义回复
 
-## 展示
-![demo1](https://user-images.githubusercontent.com/39998050/200124147-3338a2eb-8193-4068-ae6f-276cfe16a708.png)
-![demo2](https://user-images.githubusercontent.com/39998050/200124177-78636b4c-0aac-4860-a138-68f3d92477b9.png)
+- 微信 `Access Token` 自动刷新，并提供受令牌保护的查询接口。
+- 微信公众号自定义菜单管理。
+- 微信登录验证：用户发送“验证码”，或点击菜单中的“登录验证”，均会收到六位验证码。
+- 可选 Redis 会话存储和 MySQL 数据库；默认使用 SQLite。
 
-## 部署
-### 手动部署
-1. 从 [GitHub Releases](https://github.com/songquanpeng/wechat-server/releases/latest) 下载可执行文件或者从源码编译：
-   ```shell
-   git clone https://github.com/songquanpeng/wechat-server.git
-   go mod download
-   go build -ldflags "-s -w" -o wechat-server
-   ````
-2. 运行：
-   ```shell
-   chmod u+x wechat-server
-   ./wechat-server --port 3000 --log-dir ./logs
-   ```
-3. 访问 [http://localhost:3000/](http://localhost:3000/) 并登录。初始账号用户名为 `root`，密码为 `123456`。
+## 快速部署（Ubuntu）
 
-更加详细的部署教程[参见此处](https://iamazing.cn/page/how-to-deploy-a-website)。
+从 [Releases](https://github.com/HunterWangwei/wechat-server/releases) 下载对应的 `wechat-server` 文件后：
 
-### 基于 Docker 进行部署
-执行：`docker run -d --restart always -p 3000:3000 -v /home/ubuntu/data/wechat-server:/data justsong/wechat-server`
+```bash
+chmod +x wechat-server
+mkdir -p logs
+./wechat-server --port 3000 --log-dir ./logs
+```
 
-数据将会保存在宿主机的 `/home/ubuntu/data/wechat-server` 目录。
+访问 `http://服务器IP:3000`。首次登录账号为 `root`，密码为 `123456`；请登录后立即修改密码。
 
-## 配置
-1. 从 [GitHub Releases](https://github.com/songquanpeng/wechat-server/releases/latest) 下载可执行文件。
-2. 系统本身开箱即用，有一些环境变量可供配置：
-   1. `REDIS_CONN_STRING`: 设置之后，将启用 Redis。
-      + 例如：`REDIS_CONN_STRING=redis://default:redispw@localhost:49153`
-   2. `SESSION_SECRET`:设置之后，将使用给定会话密钥。
-      + 例如：`SESSION_SECRET=random_string`
-   3. `SQL_DSN`: 设置之后，将使用目标数据库而非 SQLite。
-      + 例如：`SQL_DSN=root:123456@tcp(localhost:3306)/gofile`
-3. 运行: 
-   1. `chmod u+x wechat-server`
-   2. `./wechat-server --port 3000`
-4. 初始账户用户名为 `root`，密码为 `123456`，记得登录后立刻修改密码。
-5. 前往[微信公众号配置页面 -> 设置与开发 -> 基本配置](https://mp.weixin.qq.com/)获取 AppID 和 AppSecret，并在我们的配置页面填入上述信息，另外还需要配置 IP 白名单，按照页面上的提示完成即可。
-6. 前往[微信公众号配置页面 -> 设置与开发 -> 基本配置](https://mp.weixin.qq.com/)填写以下配置：
-   1. `URL` 填：`https://<your.domain>/api/wechat`
-   2. `Token` 首先在我们的配置页面随便填写一个 Token，然后在微信公众号的配置页面填入同一个 Token 即可。
-   3. `EncodingAESKey` 点随机生成，然后在我们的配置页面填入该值。
-   4. 消息加解密方式选择明文模式。
-7. 之后保存设置并启用设置。
-8. 当前版本需要重启服务才能应用配置信息，因此请重启服务。
+如果需要从源码构建：
+
+```bash
+# 构建前端
+cd web
+npm install
+npm run build
+
+# 构建后端
+cd ..
+go mod download
+go build -ldflags "-s -w" -o wechat-server
+```
+
+## Docker 部署
+
+```bash
+docker build -t wechat-server .
+docker run -d --name wechat-server --restart always \
+  -p 3000:3000 \
+  -v "$(pwd)/data:/data" \
+  wechat-server
+```
+
+## 微信公众号配置
+
+在公众号后台“基本配置”中填写：
+
+- URL：`https://你的域名/api/wechat`
+- Token：与本服务管理后台设置的 Token 保持一致
+- EncodingAESKey：在公众号后台生成后，填写至本服务管理后台
+- 消息加解密方式：选择“明文模式”
+
+默认菜单可配置为：
+
+```json
+{
+  "button": [
+    {
+      "type": "click",
+      "name": "登录验证",
+      "key": "USER_VERIFICATION"
+    }
+  ]
+}
+```
+
+点击“登录验证”会直接返回验证码。
+
+## 环境变量
+
+- `REDIS_CONN_STRING`：启用 Redis，例如 `redis://default:redispw@localhost:49153`
+- `SESSION_SECRET`：固定会话密钥
+- `SQL_DSN`：使用 MySQL 替代 SQLite，例如 `root:123456@tcp(localhost:3306)/wechat_server`
 
 ## API
-### 获取 Access Token
-1. 请求方法：`GET`
-2. URL：`/api/wechat/access_token`
-3. 无参数，但是需要设置 HTTP 头部：`Authorization: <token>`
 
-### 通过验证码查询用户 ID
-1. 请求方法：`GET`
-2. URL：`/api/wechat/user?code=<code>`
-3. 需要设置 HTTP 头部：`Authorization: <token>`
+以下接口需要在请求头中设置 `Authorization: <token>`。
 
-### 注意
-需要将 `<token>` 和 `<code>` 替换为实际的内容。
+- `GET /api/wechat/access_token`：获取微信公众号 Access Token。
+- `GET /api/wechat/user?code=<code>`：通过验证码查询对应微信用户 ID。
+
+## 更新日志
+
+详见 [CHANGELOG.md](CHANGELOG.md)。
