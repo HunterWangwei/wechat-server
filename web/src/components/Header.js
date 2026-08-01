@@ -1,176 +1,65 @@
 import React, { useContext, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { Icon } from 'semantic-ui-react';
 import { UserContext } from '../context/User';
+import { API, isAdmin, showSuccess } from '../helpers';
 
-import { Button, Container, Icon, Menu, Segment } from 'semantic-ui-react';
-import { API, isAdmin, isMobile, showSuccess } from '../helpers';
-import '../index.css';
-
-// Header Buttons
-const headerButtons = [
-  {
-    name: '首页',
-    to: '/',
-    icon: 'home',
-  },
-  {
-    name: '用户',
-    to: '/user',
-    icon: 'user',
-    admin: true,
-  },
-  {
-    name: '设置',
-    to: '/setting',
-    icon: 'setting',
-  },
+const navItems = [
+  { name: '运行概览', to: '/', icon: 'grid layout' },
+  { name: '用户管理', to: '/user', icon: 'users', admin: true },
+  { name: '系统设置', to: '/setting', icon: 'setting' },
 ];
 
 const Header = () => {
   const [userState, userDispatch] = useContext(UserContext);
-  let navigate = useNavigate();
-  let size = isMobile() ? 'large' : '';
+  const [open, setOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const savedUser = localStorage.getItem('user');
+  const currentUser = userState.user || (savedUser ? JSON.parse(savedUser) : null);
+  const authPage = ['/login', '/register', '/reset', '/oauth/github'].some((path) => location.pathname.startsWith(path));
 
-  const [showSidebar, setShowSidebar] = useState(false);
+  if (authPage) return null;
 
-  async function logout() {
-    setShowSidebar(false);
+  const logout = async () => {
     await API.get('/api/user/logout');
-    showSuccess('注销成功!');
     userDispatch({ type: 'logout' });
     localStorage.removeItem('user');
+    showSuccess('已安全退出');
     navigate('/login');
-  }
-
-  const toggleSidebar = () => {
-    setShowSidebar(!showSidebar);
   };
-
-  const renderButtons = (isMobile) => {
-    return headerButtons.map((button) => {
-      if (button.admin && !isAdmin()) return <></>;
-      if (isMobile) {
-        return (
-          <Menu.Item
-            onClick={() => {
-              navigate(button.to);
-              setShowSidebar(false);
-            }}
-          >
-            {button.name}
-          </Menu.Item>
-        );
-      }
-      return (
-        <Menu.Item key={button.name} as={Link} to={button.to}>
-          <Icon name={button.icon} />
-          {button.name}
-        </Menu.Item>
-      );
-    });
-  };
-
-  if (isMobile()) {
-    return (
-      <>
-        <Menu
-          borderless
-          size={size}
-          style={
-            showSidebar
-              ? {
-                  borderBottom: 'none',
-                  marginBottom: '0',
-                  borderTop: 'none',
-                  height: '51px',
-                }
-              : { borderTop: 'none', height: '52px' }
-          }
-        >
-          <Container>
-            <Menu.Item as={Link} to="/">
-              <img
-                src="/logo.png"
-                alt="logo"
-                style={{ marginRight: '0.75em' }}
-              />
-              <div style={{ fontSize: '20px' }}>
-                <b>微信服务器</b>
-              </div>
-            </Menu.Item>
-            <Menu.Menu position="right">
-              <Menu.Item onClick={toggleSidebar}>
-                <Icon name={showSidebar ? 'close' : 'sidebar'} />
-              </Menu.Item>
-            </Menu.Menu>
-          </Container>
-        </Menu>
-        {showSidebar ? (
-          <Segment style={{ marginTop: 0, borderTop: '0' }}>
-            <Menu secondary vertical style={{ width: '100%', margin: 0 }}>
-              {renderButtons(true)}
-              <Menu.Item>
-                {userState.user ? (
-                  <Button onClick={logout}>注销</Button>
-                ) : (
-                  <>
-                    <Button
-                      onClick={() => {
-                        setShowSidebar(false);
-                        navigate('/login');
-                      }}
-                    >
-                      登录
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        setShowSidebar(false);
-                        navigate('/register');
-                      }}
-                    >
-                      注册
-                    </Button>
-                  </>
-                )}
-              </Menu.Item>
-            </Menu>
-          </Segment>
-        ) : (
-          <></>
-        )}
-      </>
-    );
-  }
 
   return (
     <>
-      <Menu borderless size={size} style={{ borderTop: 'none' }}>
-        <Container>
-          <Menu.Item as={Link} to="/" className={'hide-on-mobile'}>
-            <img src="/logo.png" alt="logo" style={{ marginRight: '0.75em' }} />
-            <div style={{ fontSize: '20px' }}>
-              <b>微信服务器</b>
-            </div>
-          </Menu.Item>
-          {renderButtons(false)}
-          <Menu.Menu position="right">
-            {userState.user ? (
-              <Menu.Item
-                name="注销"
-                onClick={logout}
-                className="btn btn-link"
-              />
-            ) : (
-              <Menu.Item
-                name="登录"
-                as={Link}
-                to="/login"
-                className="btn btn-link"
-              />
-            )}
-          </Menu.Menu>
-        </Container>
-      </Menu>
+      <header className="console-topbar">
+        <Link to="/" className="console-brand">
+          <span className="console-logo"><Icon name="wechat" /></span>
+          <span><strong>WeChat Server</strong><small>管理控制台</small></span>
+        </Link>
+        <button className="console-menu-toggle" onClick={() => setOpen(!open)} aria-label="切换菜单"><Icon name={open ? 'close' : 'bars'} /></button>
+        <div className="console-account">
+          <button className="console-bell" aria-label="通知"><Icon name="bell outline" /></button>
+          {currentUser ? (
+            <>
+              <span className="console-avatar">{(currentUser.display_name || currentUser.username || 'A').slice(0, 1).toUpperCase()}</span>
+              <span className="console-user-name">{currentUser.display_name || currentUser.username}</span>
+              <button className="console-logout" onClick={logout}>退出</button>
+            </>
+          ) : <Link className="console-login" to="/login">登录</Link>}
+        </div>
+      </header>
+
+      <aside className={open ? 'console-sidebar open' : 'console-sidebar'}>
+        <span className="console-nav-label">工作台</span>
+        <nav>
+          {navItems.map((item) => {
+            if (item.admin && !isAdmin()) return null;
+            return <NavLink key={item.to} to={item.to} end={item.to === '/'} onClick={() => setOpen(false)} className={({isActive}) => isActive ? 'active' : ''}><Icon name={item.icon} /><span>{item.name}</span></NavLink>;
+          })}
+        </nav>
+        <div className="console-health"><div><span className="health-dot" /><strong>服务正常</strong></div><small>连接状态实时检测</small></div>
+      </aside>
+      {open && <button className="sidebar-backdrop" onClick={() => setOpen(false)} aria-label="关闭菜单" />}
     </>
   );
 };

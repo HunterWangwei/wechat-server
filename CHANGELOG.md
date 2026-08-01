@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.1.6 - 2026-08-01
+
+### Changed
+
+- Redesign the React administration interface with a responsive application shell.
+- Replace the public landing page at `/` with a service overview dashboard.
+- Add desktop sidebar navigation and a mobile drawer for users and settings.
+- Display real service metadata and configuration status from `/api/status`.
+- Refresh tables, forms, tabs, cards, authentication pages, and footer styling.
+- Restore the signed-in user display from local storage after a page refresh.
+
 ## v0.1.5 - 2026-08-01
 
 ### Changed
